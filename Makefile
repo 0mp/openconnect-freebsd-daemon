@@ -54,4 +54,3 @@ openconnect_services: openconnect_services.in
 .PHONY: install
 install:
 	${BSD_INSTALL_SCRIPT} ${SERVICES} ${DESTDIR}${RCDDIR}
-	${MKDIR} -p ${DESTDIR}${ETCDIR}/passwords

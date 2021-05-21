@@ -1,0 +1,92 @@
+#! /bin/sh -
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+# Copyright (c) 2021 Mateusz Piotrowski <0mp@FreeBSD.org>
+#
+
+# Usage: service openconnect COMMAND [SERVICE]
+#
+# COMMAND	The standard service script command. See the rc(8) manual page
+#		for details.
+# SERVICE	The name of the OpenConnect service to apply the command to.
+#		Default: "default".
+#
+# Add the following lines to rc.conf(5) to enable the OpenConnect VPN service:
+#
+# openconnect_SERVICE_enable (bool):
+#				Set to "YES" to enable the OpenConnect service.
+#				Default: "NO".
+# openconnect_SERVICE_args (string):
+#				Append the specified string to the list of
+#				command arguments.
+#				Default: "NO".
+# openconnect_SERVICE_otp_cmd (string):
+#				Provide a shell command to execute to obtain an
+#				OTP token for authentication.
+#				Default: "".
+# openconnect_SERVICE_password_file (path):
+#				Set a path to the file storing the VPN password.
+#				Default: "%%ETCDIR%%/passwords/SERVICE".
+
+# PROVIDE: openconnect
+# REQUIRE: NETWORKING
+# KEYWORD: nostart
+
+. /etc/rc.subr
+
+_service="${2-default}"
+
+name="openconnect_${_service}"
+rcvar="openconnect_${_service}_enable"
+
+load_rc_config "${name}"
+
+_rundir="/var/run/openconnect"
+_secrets="${_rundir}/${_service}.secrets"
+pidfile="${_rundir}/${_service}.pid"
+
+eval : "\${openconnect_${_service}_enable:=NO}"
+eval : "\${openconnect_${_service}_password_file:=%%ETCDIR%%/passwords/${_service}}"
+
+eval _args=\$openconnect_${_service}_args
+eval _otp_cmd=\$openconnect_${_service}_otp_cmd
+eval _password_file=\$openconnect_${_service}_password_file
+
+command="%%LOCALBASE%%/sbin/openconnect"
+command_args="--background"
+command_args="${command_args} --passwd-on-stdin < ${_secrets}"
+command_args="${command_args} --non-inter"
+command_args="${command_args} --pid-file=${pidfile}"
+command_args="${command_args} --quiet"
+command_args="${command_args} ${_args}"
+command_args="${command_args} 2>&1 >> /var/log/${name}.log"
+sig_reload="SIGUSR2"
+
+required_files="$_password_file"
+
+start_precmd="openconnect_prestart"
+start_postcmd="rm -f ${_secrets}"
+
+openconnect_prestart()
+{
+	if ! mkdir -p "${_rundir}"; then
+		err 1 "Unable to create a directory for PID and secrets files"
+	fi
+
+	if ! rm -f "${_secrets}"; then
+		err 1 "Failed to clean up the old secrets file"
+	fi
+
+	if ! (umask 077; cat "${_password_file}" > "${_secrets}"); then
+		err 1 "Failed to create a new secrets file"
+	fi
+
+	if [ "${_otp_cmd}" ]; then
+		if ! eval ${_otp_cmd} >> "${_secrets}"; then
+			err 1 "Failed to generate a token"
+		fi
+	fi
+}
+
+run_rc_command "$1"

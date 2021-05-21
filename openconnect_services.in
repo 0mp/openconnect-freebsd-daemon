@@ -1,0 +1,27 @@
+#! /bin/sh -
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+# Copyright (c) 2021 Mateusz Piotrowski <0mp@FreeBSD.org>
+#
+
+# Add the following lines to rc.conf(5) to enable this service:
+#
+# openconnect_services (list):	Set to the list of enabled OpenConnect service
+#				names to launch automatically during boot and
+#				kill during shutdown.
+#				Default: "".
+
+# PROVIDE: openconnect_services
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="openconnect_services"
+
+load_rc_config "${name}"
+
+for _service in ${openconnect_services}; do
+	run_rc_script %%RCDDIR%%/openconnect "$1" "$_service"
+done

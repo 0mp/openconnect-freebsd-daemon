@@ -16,6 +16,10 @@
 #
 # openconnect_SERVICE_enable (bool):
 #				Set to "YES" to enable the OpenConnect service.
+#				Please note that it does not make the service
+#				start during boot (see the openconnect_services
+#				service file if starting during boot is
+#				desired).
 #				Default: "NO".
 # openconnect_SERVICE_args (string):
 #				Append the specified string to the list of

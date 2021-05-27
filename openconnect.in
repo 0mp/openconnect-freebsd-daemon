@@ -32,6 +32,10 @@
 # openconnect_SERVICE_password_file (path):
 #				Set a path to the file storing the VPN password.
 #				Default: "%%ETCDIR%%/passwords/SERVICE".
+# openconnect_SERVICE_username (string):
+#				Set the user and pass it as an argument to the
+#				--user flag.
+#				Default: unset, the flag is not passed.
 
 # PROVIDE: openconnect
 # REQUIRE: NETWORKING
@@ -56,6 +60,9 @@ eval : "\${openconnect_${_service}_password_file:=%%ETCDIR%%/passwords/${_servic
 eval _args=\$openconnect_${_service}_args
 eval _otp_cmd=\$openconnect_${_service}_otp_cmd
 eval _password_file=\$openconnect_${_service}_password_file
+eval _username=\$openconnect_${_service}_username
+
+_username="${_username:+--user ${_username}}"
 
 command="%%LOCALBASE%%/sbin/openconnect"
 command_args="--background"
@@ -63,6 +70,7 @@ command_args="${command_args} --passwd-on-stdin < ${_secrets}"
 command_args="${command_args} --non-inter"
 command_args="${command_args} --pid-file=${pidfile}"
 command_args="${command_args} --quiet"
+command_args="${command_args} ${_username}"
 command_args="${command_args} ${_args}"
 command_args="${command_args} 2>&1 >> /var/log/${name}.log"
 sig_reload="SIGUSR2"

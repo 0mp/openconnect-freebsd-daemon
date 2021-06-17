@@ -31,7 +31,7 @@ Configure and connect to a VPN with OpenConnect:
 # service openconnect start myvpn
 ```
 
-Enable the "myvpn" OpenConnect service to run on boot:
+Enable "myvpn" OpenConnect service to run on boot:
 
 ```console
 # sysrc openconnect_services+="myvpn"

@@ -24,7 +24,8 @@ Configure and connect to a VPN with OpenConnect:
 
 ```console
 # sysrc openconnect_myvpn_enable="YES"
-# sysrc openconnect_myvpn_args="--user charlie.root vpn.example.org"
+# sysrc openconnect_myvpn_username="charlie.root"
+# sysrc openconnect_myvpn_server="vpn.example.org"
 # mkdir -p /usr/local/etc/openconnect/passwords
 # (umask 077; echo "password" > /usr/local/etc/openconnect/passwords/myvpn)
 # service openconnect start myvpn

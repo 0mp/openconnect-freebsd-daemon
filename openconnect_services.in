@@ -23,5 +23,7 @@ name="openconnect_services"
 load_rc_config "${name}"
 
 for _service in ${openconnect_services}; do
-	%%RCDDIR%%/openconnect "$1" "$_service"
+	if ! %%RCDDIR%%/openconnect "$1" "$_service"; then
+		err 1 "Failed to complete command \"$1\" for service \"$_service\""
+	fi
 done

@@ -23,5 +23,5 @@ name="openconnect_services"
 load_rc_config "${name}"
 
 for _service in ${openconnect_services}; do
-	run_rc_script %%RCDDIR%%/openconnect "$1" "$_service"
+	%%RCDDIR%%/openconnect "$1" "$_service"
 done

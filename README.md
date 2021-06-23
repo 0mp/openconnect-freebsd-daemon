@@ -37,6 +37,12 @@ Enable "myvpn" OpenConnect service to run on boot:
 # sysrc openconnect_services+="myvpn"
 ```
 
+Enable verbose output (e.g., for debugging):
+
+```console
+# sysrc openconnect_myvpn_args+="--verbose"
+```
+
 ## License
 
 The 2-Clause BSD license.

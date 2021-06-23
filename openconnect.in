@@ -39,6 +39,9 @@
 #				Set the user and pass it as an argument to the
 #				--user flag.
 #				Default: unset, the flag is not passed.
+#
+# Note, that due to the use of daemon(8) some standard rc.subr(8) variables
+# like openconnect_flags are not supported.
 
 # PROVIDE: openconnect
 # REQUIRE: NETWORKING
@@ -68,16 +71,15 @@ eval _username=\$openconnect_${_service}_username
 
 _username="${_username:+--user ${_username}}"
 
-command="%%LOCALBASE%%/sbin/openconnect"
-command_args="--background"
+procname="%%LOCALBASE%%/sbin/openconnect"
+command="/usr/sbin/daemon"
+command_args="-o /var/log/${name}.log -p ${pidfile} -- ${procname}"
 command_args="${command_args} --passwd-on-stdin < ${_secrets}"
 command_args="${command_args} --non-inter"
-command_args="${command_args} --pid-file=${pidfile}"
 command_args="${command_args} --quiet"
 command_args="${command_args} ${_username}"
 command_args="${command_args} ${_args}"
 command_args="${command_args} ${_server}"
-command_args="${command_args} 2>&1 >> /var/log/${name}.log"
 sig_reload="SIGUSR2"
 
 required_files="$_password_file"

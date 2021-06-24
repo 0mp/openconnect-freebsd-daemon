@@ -33,17 +33,27 @@ RCDDIR?=		${PREFIX}/etc/rc.d
 LOCALBASE?=		/usr/local
 PREFIX?=		/usr/local
 
-SERVICES=		openconnect openconnect_services
+BUILDDIR=		./build
 
-.SUFFIXES: .in
+openconnect_SERVICE=		${BUILDDIR}/openconnect
+openconnect_services_SERVICE=	${BUILDDIR}/openconnect_services
+SERVICES=			${openconnect_SERVICE} ${openconnect_services_SERVICE}
 
 .PHONY: all
 all: ${SERVICES}
 
-openconnect: openconnect.in
-openconnect_services: openconnect_services.in
+${BUILDDIR}:
+	mkdir -p ${BUILDDIR}
 
-.in:
+${openconnect_SERVICE}: openconnect.in ${BUILDDIR}
+	${SED} \
+		-e 's|%%ETCDIR%%|${ETCDIR}|g' \
+		-e 's|%%LOCALBASE%%|${LOCALBASE}|g' \
+		-e 's|%%PREFIX%%|${PREFIX}|g' \
+		-e 's|%%RCDDIR%%|${RCDDIR}|g' \
+		${.ALLSRC} > ${.TARGET}
+
+${openconnect_services_SERVICE}: openconnect_services.in ${BUILDDIR}
 	${SED} \
 		-e 's|%%ETCDIR%%|${ETCDIR}|g' \
 		-e 's|%%LOCALBASE%%|${LOCALBASE}|g' \

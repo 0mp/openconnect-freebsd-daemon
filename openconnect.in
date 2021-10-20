@@ -7,8 +7,12 @@
 
 # Usage: service openconnect COMMAND [SERVICE]
 #
-# COMMAND	The standard service script command. See the rc(8) manual page
-#		for details.
+# COMMAND	The service script command. See the rc(8) manual page
+#		for details. The non-standard service script commands are:
+#
+#		setpassword	Prompt the user for a password
+#				and save it to the password file.
+#
 # SERVICE	The name of the OpenConnect service to apply the command to.
 #		Default: "default".
 #
@@ -84,8 +88,34 @@ sig_reload="SIGUSR2"
 
 required_files="$_password_file"
 
+extra_commands="setpassword"
+
+setpassword_cmd="openconnect_setpassword"
 start_precmd="openconnect_prestart"
 start_postcmd="rm -f ${_secrets}"
+
+openconnect_setpassword()
+{
+	local _password
+
+	if ! stty -echo; then
+		err 1 "Failed to turn off echo"
+	fi
+	if ! mkdir -p %%ETCDIR%%/passwords; then
+		stty echo
+		err 1 "Failed to create the passwords directory"
+	fi
+	if ! read -r -p "Password ($name): " _password; then
+		stty echo
+		err 1 "Failed read the password from standard input"
+	fi
+	echo ""
+	if ! (umask 077 && echo "$_password" > ${_password_file}); then
+		stty echo
+		err 1 "Failed to save password to \"${_password_file}\""
+	fi
+	stty echo
+}
 
 openconnect_prestart()
 {

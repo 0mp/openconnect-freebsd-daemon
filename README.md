@@ -26,8 +26,8 @@ Configure and connect to a VPN with OpenConnect:
 # sysrc openconnect_myvpn_enable="YES"
 # sysrc openconnect_myvpn_username="charlie.root"
 # sysrc openconnect_myvpn_server="vpn.example.org"
-# mkdir -p /usr/local/etc/openconnect/passwords
-# (umask 077; echo "password" > /usr/local/etc/openconnect/passwords/myvpn)
+# service openconnect setpassword myvpn
+Password (openconnect_myvpn):
 # service openconnect start myvpn
 ```
 
@@ -41,6 +41,13 @@ Enable verbose output (e.g., for debugging):
 
 ```console
 # sysrc openconnect_myvpn_args+="--verbose"
+```
+
+Set the password manually:
+
+```console
+# mkdir -p /usr/local/etc/openconnect/passwords
+# (umask 077 && echo "password" > /usr/local/etc/openconnect/passwords/myvpn)
 ```
 
 ## License
